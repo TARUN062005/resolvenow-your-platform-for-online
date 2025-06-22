@@ -1,0 +1,29 @@
+.help-card {
+  border-radius: 10px;
+  border: none;
+}
+
+.help-card .accordion-item {
+  border-radius: 6px !important;
+  margin-bottom: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.help-card .accordion-button {
+  font-weight: 500;
+  border-radius: 6px !important;
+}
+
+.help-card .accordion-button:not(.collapsed) {
+  background-color: #f8f9fa;
+  color: #0d6efd;
+}
+
+.help-steps-list {
+  padding-left: 0;
+  list-style-type: none;
+}
+
+.help-steps-list li {
+  padding: 4px 0;
+}
