@@ -1,0 +1,46 @@
+Follow the steps below to run the project on your local system:
+
+1. Start the Backend Server
+--> Open the terminal or command prompt.
+
+--> Navigate to the backend folder:
+
+bash
+Copy
+Edit
+cd backend
+--> Install dependencies if not already installed:
+
+nginx
+Copy
+Edit
+npm install
+--> Start the server and connect to local MongoDB:
+
+nginx
+Copy
+Edit
+node index.js
+(Ensure MongoDB is running locally on port 27017 or update config as needed)
+
+2. Start the Frontend Application
+--> Open another terminal window.
+
+--> Navigate to the frontend folder:
+
+bash
+Copy
+Edit
+cd frontend
+--> Install frontend dependencies:
+
+nginx
+Copy
+Edit
+npm install
+--> Start the frontend server on port 3000:
+
+sql
+Copy
+Edit
+npm start
