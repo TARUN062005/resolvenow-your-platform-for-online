@@ -6,6 +6,8 @@ import UserInfo from './UserInfo';
 import AccordionAdmin from "./AccordionAdmin";
 import AgentInfo from './AgentInfo';
 import AdminHelp from './AdminHelp';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 import './AdminHome.css';
 
 const AdminHome = () => {
@@ -42,13 +44,34 @@ const AdminHome = () => {
     navigate('/');
   };
 
-  // Function to mark complaint as assigned
-  const markComplaintAssigned = (complaintId) => {
-    const updatedAssignments = new Set(assignedComplaints);
-    updatedAssignments.add(complaintId);
-    setAssignedComplaints(updatedAssignments);
-    // Save to localStorage
-    localStorage.setItem('assignedComplaints', JSON.stringify(Array.from(updatedAssignments)));
+  // Updated function to mark complaint as assigned
+  const markComplaintAssigned = async (complaintId, agentId) => {
+    try {
+      // Call backend to assign complaint to agent
+      const response = await axios.put('http://localhost:8000/agentStats/assign', {
+        complaintId,
+        agentId
+      });
+
+      if (response.status === 200) {
+        // Update local state
+        const updatedAssignments = new Set(assignedComplaints);
+        updatedAssignments.add(complaintId);
+        setAssignedComplaints(updatedAssignments);
+        
+        // Save to localStorage
+        localStorage.setItem('assignedComplaints', JSON.stringify(Array.from(updatedAssignments)));
+        
+        toast.success('Complaint assigned successfully');
+        
+        // Return true to indicate success
+        return true;
+      }
+    } catch (error) {
+      console.error('Assignment error:', error);
+      toast.error('Failed to assign complaint');
+      return false;
+    }
   };
 
   // Function to check if complaint is already assigned
@@ -125,7 +148,12 @@ const AdminHome = () => {
               markComplaintAssigned={markComplaintAssigned}
             />
           )}
-          {activeComponent === 'dashboard' && <AccordionAdmin />}
+          {activeComponent === 'dashboard' && (
+            <AccordionAdmin 
+              isComplaintAssigned={isComplaintAssigned}
+              markComplaintAssigned={markComplaintAssigned}
+            />
+          )}
           {activeComponent === 'UserInfo' && <UserInfo />}
           {activeComponent === 'Help' && <AdminHelp />}
         </Container>

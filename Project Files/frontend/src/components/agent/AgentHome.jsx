@@ -30,6 +30,7 @@ const AgentHome = () => {
   const [expandedChats, setExpandedChats] = useState({});
   const [agentComplaintList, setAgentComplaintList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,11 +43,12 @@ const AgentHome = () => {
 
         const { _id, name } = user;
         setUserName(name);
+        setUserData(user);
         
         const response = await axios.get(`http://localhost:8000/allcomplaints/${_id}`);
         setAgentComplaintList(response.data);
       } catch (error) {
-        console.error(error);
+        console.error('Fetch error:', error);
         toast.error('Failed to load complaints');
       } finally {
         setLoading(false);
@@ -58,23 +60,34 @@ const AgentHome = () => {
 
   const handleStatusChange = async (complaintId) => {
     try {
-      await axios.put(`http://localhost:8000/complaint/${complaintId}`, { status: 'completed' });
+      // First update the complaint status
+      const complaintResponse = await axios.put(`http://localhost:8000/complaint/${complaintId}`, { 
+        status: 'completed',
+        agentId: userData._id
+      });
       
+      console.log('Complaint update response:', complaintResponse.data);
+
+      // Then update agent stats
+      const statsResponse = await axios.put('http://localhost:8000/agentStats/complete', {
+        complaintId,
+        agentId: userData._id
+      });
+      
+      console.log('Stats update response:', statsResponse.data);
+
+      // Update local state
       setAgentComplaintList(prevComplaints => 
-        prevComplaints.map(complaint => 
-          complaint._doc.complaintId === complaintId 
-            ? { 
-                ...complaint, 
-                _doc: { ...complaint._doc, status: 'completed' } 
-              } 
-            : complaint
-        )
+        prevComplaints.filter(complaint => complaint._doc.complaintId !== complaintId)
       );
       
-      toast.success('Status updated to completed');
+      toast.success('Complaint marked as completed and stats updated');
     } catch (error) {
-      console.error(error);
-      toast.error('Failed to update status');
+      console.error('Completion error:', error);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+      }
+      toast.error('Failed to update complaint status');
     }
   };
 

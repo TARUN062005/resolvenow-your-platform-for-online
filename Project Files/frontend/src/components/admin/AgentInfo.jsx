@@ -16,14 +16,17 @@ import {
   FiEdit2, 
   FiTrash2,
   FiRefreshCw,
-  FiCheckCircle
+  FiCheckCircle,
+  FiClock,
+  FiList,
+  FiCheck
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import './AgentInfo.css';
 
-const AgentInfo = () => {
+const AgentInfo = ({ isComplaintAssigned, markComplaintAssigned }) => {
   const navigate = useNavigate();
   const [agentList, setAgentList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,20 +39,61 @@ const AgentInfo = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [agentToDelete, setAgentToDelete] = useState(null);
 
-  useEffect(() => {
-    const fetchAgents = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get('http://localhost:8000/agentUsers');
-        setAgentList(response.data);
-      } catch (error) {
-        console.error(error);
-        toast.error('Failed to load agents');
-      } finally {
-        setLoading(false);
+  const fetchAgentsWithStats = async () => {
+    try {
+      setLoading(true);
+      console.log('Fetching agents and stats...'); // Debug log
+      
+      const agentsResponse = await axios.get('http://localhost:8000/agentUsers');
+      console.log('Agents response:', agentsResponse.data); // Debug log
+      
+      // First check if we got any agents
+      if (!agentsResponse.data || agentsResponse.data.length === 0) {
+        console.log('No agents found in response');
+        setAgentList([]);
+        return;
       }
-    };
-    fetchAgents();
+
+      // Then try to get stats
+      try {
+        const statsResponse = await axios.get('http://localhost:8000/agentStats');
+        console.log('Stats response:', statsResponse.data); // Debug log
+        
+        const agentsWithStats = agentsResponse.data.map(agent => {
+          const agentStats = statsResponse.data.find(a => a._id === agent._id)?.stats || {
+            assigned: 0,
+            inProgress: 0,
+            completed: 0
+          };
+          return { ...agent, stats: agentStats };
+        });
+        
+        console.log('Merged agents with stats:', agentsWithStats); // Debug log
+        setAgentList(agentsWithStats);
+      } catch (statsError) {
+        console.error('Error fetching stats, using default stats:', statsError);
+        // If stats endpoint fails, just use the agents with default stats
+        const agentsWithDefaultStats = agentsResponse.data.map(agent => ({
+          ...agent,
+          stats: {
+            assigned: 0,
+            inProgress: 0,
+            completed: 0
+          }
+        }));
+        setAgentList(agentsWithDefaultStats);
+      }
+    } catch (error) {
+      console.error('Error in fetchAgentsWithStats:', error);
+      toast.error('Failed to load agent data');
+      setAgentList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAgentsWithStats();
   }, []);
 
   const handleChange = (e) => {
@@ -63,14 +107,18 @@ const AgentInfo = () => {
     }
 
     try {
-      await axios.put(`http://localhost:8000/user/${agentId}`, updateAgent);
+      const response = await axios.put(`http://localhost:8000/user/${agentId}`, updateAgent);
+      console.log('Update response:', response); // Debug log
       toast.success('Agent updated successfully');
       setExpandedRow(null);
       setUpdateAgent({ name: '', email: '', phone: '' });
-      const response = await axios.get('http://localhost:8000/agentUsers');
-      setAgentList(response.data);
+      await fetchAgentsWithStats();
     } catch (error) {
-      console.error(error);
+      console.error('Update error:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+      }
       toast.error('Failed to update agent');
     }
   };
@@ -82,11 +130,17 @@ const AgentInfo = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8000/OrdinaryUsers/${agentToDelete}`);
+      console.log('Deleting agent:', agentToDelete); // Debug log
+      const response = await axios.delete(`http://localhost:8000/agentUsers/${agentToDelete}`);
+      console.log('Delete response:', response); // Debug log
       setAgentList(agentList.filter((agent) => agent._id !== agentToDelete));
       toast.success('Agent deleted successfully');
     } catch (error) {
-      console.error(error);
+      console.error('Delete error:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+      }
       toast.error('Failed to delete agent');
     } finally {
       setShowDeleteModal(false);
@@ -120,21 +174,7 @@ const AgentInfo = () => {
         <Button 
           variant="outline-primary" 
           size="sm"
-          onClick={() => {
-            const fetchAgents = async () => {
-              try {
-                setLoading(true);
-                const response = await axios.get('http://localhost:8000/agentUsers');
-                setAgentList(response.data);
-              } catch (error) {
-                console.error(error);
-                toast.error('Failed to load agents');
-              } finally {
-                setLoading(false);
-              }
-            };
-            fetchAgents();
-          }}
+          onClick={fetchAgentsWithStats}
         >
           <FiRefreshCw className="me-1" />
           Refresh
@@ -149,6 +189,18 @@ const AgentInfo = () => {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>
+                  <FiList className="me-1" />
+                  Assigned
+                </th>
+                <th>
+                  <FiClock className="me-1" />
+                  In Progress
+                </th>
+                <th>
+                  <FiCheck className="me-1" />
+                  Completed
+                </th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -160,6 +212,9 @@ const AgentInfo = () => {
                     <td>{agent.name}</td>
                     <td>{agent.email}</td>
                     <td>{agent.phone || 'N/A'}</td>
+                    <td>{agent.stats.assigned}</td>
+                    <td>{agent.stats.inProgress}</td>
+                    <td>{agent.stats.completed}</td>
                     <td>
                       <Badge bg="success" pill>
                         <FiCheckCircle className="me-1" />
@@ -187,7 +242,7 @@ const AgentInfo = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td colSpan={5} className="p-0 border-0">
+                    <td colSpan={8} className="p-0 border-0">
                       <Collapse in={expandedRow === agent._id}>
                         <div className="update-form-container p-3 bg-light">
                           <Form onSubmit={(e) => {
