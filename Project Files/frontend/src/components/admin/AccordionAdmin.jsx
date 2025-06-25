@@ -1,65 +1,78 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Accordion, 
-  Card, 
-  Dropdown, 
-  Alert, 
+import {
+  Accordion,
+  Card,
+  Alert,
   Badge,
   Container,
   Row,
   Col
 } from 'react-bootstrap';
-import { 
-  FiUser, 
-  FiMail, 
-  FiMapPin, 
-  FiMessageSquare, 
+import {
+  FiUser,
+  FiMail,
+  FiMapPin,
+  FiMessageSquare,
   FiCheckCircle,
   FiUsers,
   FiAlertCircle
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import './AccordionAdmin.css'; // New CSS file for styling
+import './AccordionAdmin.css';
 
 const AccordionAdmin = () => {
   const [complaintList, setComplaintList] = useState([]);
   const [agentList, setAgentList] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [complaintsRes, agentsRes] = await Promise.all([
+        axios.get('http://localhost:8000/status'),
+        axios.get('http://localhost:8000/AgentUsers')
+      ]);
+      setComplaintList(complaintsRes.data);
+      setAgentList(agentsRes.data);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      toast.error('Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [complaintsRes, agentsRes] = await Promise.all([
-          axios.get('http://localhost:8000/status'),
-          axios.get('http://localhost:8000/AgentUsers')
-        ]);
-        setComplaintList(complaintsRes.data);
-        setAgentList(agentsRes.data);
-      } catch (error) {
-        console.error(error);
-        toast.error('Failed to load data');
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
   const handleAssignment = async (agentId, complaintId, status, agentName) => {
     try {
+      const alreadyAssigned = complaintList.find(c => c._id === complaintId)?.assignedTo;
+      if (alreadyAssigned) {
+        toast.warning('Complaint already assigned');
+        return;
+      }
+
       await axios.post('http://localhost:8000/assignedComplaints', {
         agentId,
         complaintId,
         status,
         agentName
       });
-      
-      setComplaintList(prev => prev.filter(c => c._id !== complaintId));
+
+      setComplaintList(prev =>
+        prev.map(c =>
+          c._id === complaintId ? { ...c, assignedTo: agentName } : c
+        )
+      );
+
       toast.success(`Complaint assigned to ${agentName}`);
+      localStorage.setItem('statsUpdated', Date.now());
+
     } catch (error) {
-      console.error(error);
+      console.error('Assign error:', error.response?.data || error.message);
       toast.error('Assignment failed');
     }
   };
@@ -112,38 +125,42 @@ const AccordionAdmin = () => {
                             {complaint.status}
                           </Badge>
                         </Card.Title>
-                        
+
                         <Card.Text className="text-muted small">
                           <FiMapPin className="me-2" />
                           {complaint.address}, {complaint.city}, {complaint.state} - {complaint.pincode}
                         </Card.Text>
-                        
+
                         <Card.Text>
                           <FiMessageSquare className="me-2" />
                           {complaint.comment}
                         </Card.Text>
 
-                        {complaint.status !== "completed" && (
-                          <Dropdown className="mt-2">
-                            <Dropdown.Toggle variant="outline-primary" size="sm">
-                              Assign Agent
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu>
+                        {complaint.assignedTo ? (
+                          <Card.Text className="text-success">
+                            <FiCheckCircle className="me-2" />
+                            Assigned To: {complaint.assignedTo}
+                          </Card.Text>
+                        ) : (
+                          <div className="d-flex mt-2 gap-2 align-items-center">
+                            <select
+                              className="form-select form-select-sm"
+                              onChange={(e) => {
+                                const [agentId, agentName] = e.target.value.split('|');
+                                if (agentId && agentName) {
+                                  handleAssignment(agentId, complaint._id, complaint.status, agentName);
+                                }
+                              }}
+                              defaultValue=""
+                            >
+                              <option value="" disabled>Select agent</option>
                               {agentList.map((agent) => (
-                                <Dropdown.Item 
-                                  key={agent._id}
-                                  onClick={() => handleAssignment(
-                                    agent._id, 
-                                    complaint._id, 
-                                    complaint.status, 
-                                    agent.name
-                                  )}
-                                >
+                                <option key={agent._id} value={`${agent._id}|${agent.name}`}>
                                   {agent.name}
-                                </Dropdown.Item>
+                                </option>
                               ))}
-                            </Dropdown.Menu>
-                          </Dropdown>
+                            </select>
+                          </div>
                         )}
                       </Card.Body>
                     </Card>

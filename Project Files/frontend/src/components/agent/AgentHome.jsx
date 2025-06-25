@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Button, 
-  Container, 
-  Nav, 
-  Navbar, 
-  Card, 
-  Alert, 
-  Collapse, 
+import {
+  Button,
+  Container,
+  Nav,
+  Navbar,
+  Card,
+  Alert,
+  Collapse,
   Badge,
   Spinner
 } from 'react-bootstrap';
-import { 
-  FiUser, 
-  FiLogOut, 
+import {
+  FiUser,
+  FiLogOut,
   FiMessageSquare,
   FiCheckCircle,
   FiAlertCircle
@@ -44,7 +44,7 @@ const AgentHome = () => {
         const { _id, name } = user;
         setUserName(name);
         setUserData(user);
-        
+
         const response = await axios.get(`http://localhost:8000/allcomplaints/${_id}`);
         setAgentComplaintList(response.data);
       } catch (error) {
@@ -59,35 +59,29 @@ const AgentHome = () => {
   }, [navigate]);
 
   const handleStatusChange = async (complaintId) => {
+    const { _id: agentId } = userData;
+
     try {
-      // First update the complaint status
-      const complaintResponse = await axios.put(`http://localhost:8000/complaint/${complaintId}`, { 
-        status: 'completed',
-        agentId: userData._id
+      await axios.put(`http://localhost:8000/complaint/${complaintId}`, {
+        status: 'completed'
       });
-      
-      console.log('Complaint update response:', complaintResponse.data);
 
-      // Then update agent stats
-      const statsResponse = await axios.put('http://localhost:8000/agentStats/complete', {
-        complaintId,
-        agentId: userData._id
+      await axios.put('http://localhost:8000/agentStats/complete', {
+        agentId
       });
-      
-      console.log('Stats update response:', statsResponse.data);
 
-      // Update local state
-      setAgentComplaintList(prevComplaints => 
-        prevComplaints.filter(complaint => complaint._doc.complaintId !== complaintId)
+      // ✅ Update complaint status immediately in UI
+      setAgentComplaintList(prev =>
+        prev.map(c =>
+          (c._id === complaintId ? { ...c, status: 'completed' } : c)
+        )
       );
-      
-      toast.success('Complaint marked as completed and stats updated');
+
+      toast.success('Marked as completed');
+      localStorage.setItem('statsUpdated', Date.now());
     } catch (error) {
-      console.error('Completion error:', error);
-      if (error.response) {
-        console.error('Error response data:', error.response.data);
-      }
-      toast.error('Failed to update complaint status');
+      console.error('Error updating status:', error);
+      toast.error('Failed to update status');
     }
   };
 
@@ -105,7 +99,7 @@ const AgentHome = () => {
   };
 
   const getStatusBadge = (status) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'completed':
         return 'success';
       case 'pending':
@@ -141,11 +135,7 @@ const AgentHome = () => {
                 View Complaints
               </Nav.Link>
             </Nav>
-            <Button 
-              variant="outline-light" 
-              onClick={handleLogout}
-              className="d-flex align-items-center"
-            >
+            <Button variant="outline-light" onClick={handleLogout} className="d-flex align-items-center">
               <FiLogOut className="me-1" />
               Logout
             </Button>
@@ -155,46 +145,48 @@ const AgentHome = () => {
 
       <main className="agent-content py-4">
         <Container fluid>
-          {agentComplaintList?.length > 0 ? (
+          {agentComplaintList.length > 0 ? (
             <div className="complaints-grid">
               {agentComplaintList.map((complaint) => {
-                const isOpen = expandedChats[complaint._doc.complaintId] || false;
-                const isCompleted = complaint._doc.status === 'completed';
-                
+                const data = complaint._doc || complaint;
+                const id = complaint._id;
+                const isOpen = expandedChats[id] || false;
+                const isCompleted = data.status === 'completed';
+
                 return (
-                  <Card key={complaint._doc.complaintId} className="complaint-card shadow-sm">
+                  <Card key={id} className="complaint-card shadow-sm">
                     <Card.Body>
                       <Card.Title className="d-flex justify-content-between">
-                        <span>{complaint.name}</span>
-                        <Badge bg={getStatusBadge(complaint._doc.status)}>
-                          {complaint._doc.status}
+                        <span>{data.name}</span>
+                        <Badge bg={getStatusBadge(data.status)}>
+                          {data.status}
                         </Badge>
                       </Card.Title>
-                      
+
                       <Card.Text className="text-muted small">
-                        <strong>Address:</strong> {complaint.address}, {complaint.city}, {complaint.state} - {complaint.pincode}
+                        <strong>Address:</strong> {data.address}, {data.city}, {data.state} - {data.pincode}
                       </Card.Text>
-                      
+
                       <Card.Text className="mt-2">
-                        <strong>Description:</strong> {complaint.comment}
+                        <strong>Description:</strong> {data.comment}
                       </Card.Text>
 
                       <div className="d-flex gap-2 mt-3">
                         {!isCompleted && (
-                          <Button 
-                            variant="primary" 
+                          <Button
+                            variant="primary"
                             size="sm"
-                            onClick={() => handleStatusChange(complaint._doc.complaintId)}
+                            onClick={() => handleStatusChange(id)}
                           >
                             <FiCheckCircle className="me-1" />
                             Mark Completed
                           </Button>
                         )}
-                        
+
                         <Button
                           variant={isOpen ? 'outline-secondary' : 'outline-primary'}
                           size="sm"
-                          onClick={() => toggleChat(complaint._doc.complaintId)}
+                          onClick={() => toggleChat(id)}
                         >
                           <FiMessageSquare className="me-1" />
                           {isOpen ? 'Hide Chat' : 'Show Chat'}
@@ -204,10 +196,7 @@ const AgentHome = () => {
                       <Collapse in={isOpen} className="mt-3">
                         <div>
                           <Card body className="chat-container">
-                            <ChatWindow 
-                              complaintId={complaint._doc.complaintId} 
-                              name={userName} 
-                            />
+                            <ChatWindow complaintId={id} name={userName} />
                           </Card>
                         </div>
                       </Collapse>
