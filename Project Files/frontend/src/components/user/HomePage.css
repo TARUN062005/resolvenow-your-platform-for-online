@@ -1,0 +1,56 @@
+/* HomePage.css */
+.user-dashboard {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+}
+
+.dashboard-content {
+  flex: 1;
+  background-color: #fff;
+}
+
+.navbar {
+  padding: 0.75rem 1rem;
+}
+
+.nav-link {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin: 0 0.25rem;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-brand {
+  font-size: 1.1rem;
+}
+
+@media (max-width: 992px) {
+  .navbar-collapse {
+    padding-top: 1rem;
+  }
+  
+  .nav-link {
+    margin: 0.25rem 0;
+  }
+  
+  .logout-btn {
+    margin-top: 1rem;
+    width: 100%;
+  }
+}
+.logout-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 992px) {
+  .logout-btn {
+    margin-top: 1rem;
+    width: 100%;
+  }
+}

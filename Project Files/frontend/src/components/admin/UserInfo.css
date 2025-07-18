@@ -1,0 +1,41 @@
+.user-info-container {
+  padding: 1.5rem;
+  min-height: calc(100vh - 120px);
+}
+
+.user-table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-table th {
+  background-color: #f8f9fa;
+  font-weight: 500;
+}
+
+.update-form-container {
+  border-radius: 0 0 8px 8px;
+  border: 1px solid #dee2e6;
+  border-top: none;
+}
+
+.action-buttons {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .user-info-container {
+    padding: 1rem;
+  }
+  
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .action-buttons .btn {
+    width: 100%;
+  }
+}

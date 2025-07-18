@@ -1,0 +1,35 @@
+/* Status.css */
+.status-container {
+  padding: 1.5rem;
+}
+
+.complaints-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.complaint-card {
+  border-radius: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.complaint-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chat-container {
+  border-radius: 6px;
+  background-color: #f8f9fa;
+}
+
+@media (max-width: 576px) {
+  .complaints-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .status-container {
+    padding: 1rem;
+  }
+}

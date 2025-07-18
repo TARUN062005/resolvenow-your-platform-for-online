@@ -1,0 +1,36 @@
+/* AccordionAdmin.css */
+.admin-accordion-container {
+  padding: 1.5rem;
+}
+
+.accordion-header {
+  background-color: #f8f9fa;
+  font-weight: 500;
+  border-radius: 4px !important;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #f8f9fa;
+  color: #0d6efd;
+  box-shadow: none;
+}
+
+.accordion-body {
+  background-color: #fff;
+}
+
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 8px;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+@media (max-width: 768px) {
+  .admin-accordion-container {
+    padding: 1rem;
+  }
+}

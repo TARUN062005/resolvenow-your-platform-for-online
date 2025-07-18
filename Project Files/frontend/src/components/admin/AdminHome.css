@@ -1,0 +1,36 @@
+/* AdminHome.css */
+.admin-dashboard {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+}
+
+.admin-navbar {
+  padding: 0.75rem 1rem;
+}
+
+.admin-content {
+  flex: 1;
+  background-color: #fff;
+}
+
+.admin-help-card {
+  border-radius: 8px;
+  border: none;
+}
+
+.admin-logout-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 992px) {
+  .admin-navbar .nav-link {
+    margin: 0.25rem 0;
+  }
+  
+  .admin-logout-btn {
+    margin-top: 1rem;
+    width: 100%;
+  }
+}
