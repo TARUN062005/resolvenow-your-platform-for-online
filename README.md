@@ -1,27 +1,43 @@
-:
 
 🛠️ ResolveNow: Complaint Management System
-A simple and efficient complaint redressal system that enables users to register issues, agents to resolve them, and admins to manage everything—transparently and in real-time.
+A full-stack complaint management platform designed to streamline public grievance redressal. With role-based access and real-time tracking, ResolveNow enables users to register issues, agents to resolve them, and admins to manage the entire lifecycle—efficiently and transparently.
 
 🚀 Features
-👥 Role-Based Access (Admin, Agent & User)
-📝 Register, Track & Chat on Complaints
+👥 Role-Based Access (Admin, Agent & User Dashboards)
+
+📝 Complaint Registration, Tracking & Chat Support
+
 👨‍🔧 Agent Assignment with Real-Time Stats
-📈 Admin Dashboard with Analytics
+
+📈 Admin Dashboard with Performance Analytics
+
 💬 In-App Chat System (User ↔ Agent)
-⚙️ Complaint Status: Pending / In Progress / Completed
-📱 Responsive UI (Mobile + Web Friendly)
+
+⚙️ Status Updates: Pending / In Progress / Completed
+
+📲 Fully Responsive UI (Mobile + Web Friendly)
 
 🛠️ Tech Stack
-Frontend: React.js, Axios, Bootstrap, Material UI
-Backend: Node.js, Express.js, MongoDB (Mongoose)
-Authentication: JWT (Token-based)
+Frontend: React.js, Axios, Bootstrap, Material UI, React Icons, React Router, Toastify
+
+Backend: Node.js, Express.js, MongoDB + Mongoose, Bcrypt, Body-Parser
+
+Authentication: JWT (Token-based authentication)
+
 Architecture: RESTful APIs
-State Management: LocalStorage-based sync
-Deployment: Vercel / Render / Netlify (based on setup)
+
+State Management: LocalStorage-based sync for real-time updates
 
 📸 Screenshots
-🏠 Home 📊 Admin Dashboard 🧑‍🔧 Agent View 💬 Chat Interface
+Add your UI screenshots below:
+
+🏠 Home Page
+
+🛠️ Admin Dashboard
+
+👨‍🔧 Agent View
+
+💬 Chat Interface
 
 ⚙️ Installation & Setup
 Clone the repository
@@ -38,47 +54,64 @@ Copy
 Edit
 npm install
 Set up environment variables
-Create a .env file and add:
+Create a .env file in the root directory and add:
 
 env
 Copy
 Edit
-MONGO_URI=your_database_uri
+MONGO_URI=your_mongodb_uri
 JWT_SECRET=your_jwt_secret
-Run the development server
+Start the development server
 
 bash
 Copy
 Edit
 npm start
 🧪 Testing
-Run tests using:
+To run tests for both frontend and backend:
 
 bash
 Copy
 Edit
 npm test
+🧠 Agent Statistics Logic
+Assigned: Increases when an admin assigns a complaint
+
+In Progress: Automatically calculated as Assigned - Completed
+
+Completed: Increases when an agent marks a complaint as resolved
+
+Note: Each complaint is assigned to only one agent.
+
 📌 Future Enhancements
 📱 Mobile App Version
+
 📆 Calendar View for Admins & Agents
-🔔 Push Notifications
-🗣️ Multi-Language Support
-💳 Payment Integration
-📤 Complaint Export to PDF
+
+🔔 Push Notification Support
+
+🌐 Multi-Language UI
+
+💳 Payment Integration for Paid Services
+
+📤 Export Complaints to PDF
 
 🐞 Known Issues
+Minor UI glitches on very small screens
+
 No calendar integration yet
-Limited analytics graphs
-Minor UI glitches on small screens
+
+Limited data visualizations in analytics
 
 🤝 Contributing
-Contributions are welcome!
-Please fork the repository and submit a pull request.
+We welcome contributions!
+Fork the repo, make changes, and submit a Pull Request 🚀
 
 📄 License
 This project is licensed under the MIT License.
 
-🔗 Links
-📂 Drive: Project Files
-🌐 Live Demo: Watch on YouTube
+🔗 Resources
+📂 Google Drive - Project Files
+
+▶️ Live Demo on YouTube
 
