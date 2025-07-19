@@ -45,7 +45,7 @@ Clone the repository
 bash
 Copy
 Edit
-git clone https://github.com/your-username/resolvenow-app.git
+git clone https://github.com/TARUN062005/resolvenow-your-platform-for-online.git
 cd resolvenow-app
 Install dependencies
 
