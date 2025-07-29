@@ -96,7 +96,7 @@ Note: Each complaint is assigned to only one agent.
 
 📤 Export Complaints to PDF
 
-🐞 Known Issues
+ Known Issues
 Minor UI glitches on very small screens
 
 No calendar integration yet
