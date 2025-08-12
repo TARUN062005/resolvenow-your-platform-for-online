@@ -1,4 +1,3 @@
-
 🛠️ ResolveNow: Complaint Management System
 A full-stack complaint management platform designed to streamline public grievance redressal. With role-based access and real-time tracking, ResolveNow enables users to register issues, agents to resolve them, and admins to manage the entire lifecycle—efficiently and transparently.
 
